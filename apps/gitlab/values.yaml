@@ -44,7 +44,15 @@ gitlab:
     primary:
       persistence:
         storageClass: gp3
-
+    image:
+      registry: docker.io
+      repository: bitnami/postgresql
+      tag: 14.11.0-debian-12-r0  # 指定可用的新版本 Tag
+    metrics:
+      image:
+        registry: docker.io
+        repository: bitnami/postgres-exporter
+        tag: 0.15.0-debian-11-r12  # 指定可用的 Exporter Tag
   redis:
     master:
       persistence:
