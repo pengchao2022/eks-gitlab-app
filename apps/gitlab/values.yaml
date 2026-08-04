@@ -1,18 +1,23 @@
-# 注意：因为使用了 dependencies，所有配置必须放在 gitlab: 之下！
+# =======================================================
+# GitLab Helm Chart Values (EKS + AWS ALB + gp3 Storage)
+# =======================================================
+
 gitlab:
-  
-  # 1. 🔑 彻底禁用升级检查（这回肯定生效了）
+
+  # 1. 🔑 彻底禁用升级检查（解决全新的初始化安装/跨版本检查报错）
   upgradeCheck:
     enabled: false
 
   # 2. 全局基础配置
   global:
     hosts:
-      domain: awsmpc.asia
-    
+      domain: awsmpc.asia  # 你的域名，最终访问地址为 gitlab.awsmpc.asia
+
+    # GitLab 原生组件（如 Gitaly）使用的存储类
     persistence:
       storageClass: gp3
 
+    # Ingress 配置：对接 AWS Load Balancer Controller
     ingress:
       configureCertmanager: false
       provider: aws
@@ -20,9 +25,10 @@ gitlab:
       annotations:
         alb.ingress.kubernetes.io/scheme: internet-facing
         alb.ingress.kubernetes.io/target-type: ip
+        # 复用已有的 ALB 分组，节省资源与成本
         alb.ingress.kubernetes.io/group.name: monitoring-group
 
-  # 3. 禁用内置的证书与网关组件
+  # 3. 禁用内置的证书与网关组件（由 AWS ALB 全权接管）
   certmanager:
     install: false
 
@@ -32,3 +38,23 @@ gitlab:
   # 4. 可选配置：内置工具链
   gitlab-runner:
     install: true
+
+  # 5. 🔑 为内置的所有第三方依赖组件显式配置 gp3 存储类
+  postgresql:
+    primary:
+      persistence:
+        storageClass: gp3
+
+  redis:
+    master:
+      persistence:
+        storageClass: gp3
+
+  minio:
+    persistence:
+      storageClass: gp3
+
+  prometheus:
+    server:
+      persistentVolume:
+        storageClass: gp3
