@@ -1,40 +1,34 @@
-# ==========================================
-# GitLab Helm Chart Values for EKS & Argo CD
-# ==========================================
-
-# 1. 🔑 彻底禁用升级检查（解决全新的初始化安装/跨版本检查报错）
-upgradeCheck:
-  enabled: false
-
-global:
-  # 彻底关掉升级检查逻辑
+# 注意：因为使用了 dependencies，所有配置必须放在 gitlab: 之下！
+gitlab:
+  
+  # 1. 🔑 彻底禁用升级检查（这回肯定生效了）
   upgradeCheck:
     enabled: false
 
-  hosts:
-    domain: awsmpc.asia  # 你的域名，最终访问地址为 gitlab.awsmpc.asia
-  
-  # 存储类：指定 AWS EKS 的 EBS gp3
-  persistence:
-    storageClass: gp3
+  # 2. 全局基础配置
+  global:
+    hosts:
+      domain: awsmpc.asia
+    
+    persistence:
+      storageClass: gp3
 
-  # Ingress 配置：挂载 AWS ALB Controller
-  ingress:
-    configureCertmanager: false
-    provider: aws
-    class: alb
-    annotations:
-      alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/target-type: ip
-      alb.ingress.kubernetes.io/group.name: monitoring-group
+    ingress:
+      configureCertmanager: false
+      provider: aws
+      class: alb
+      annotations:
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/target-type: ip
+        alb.ingress.kubernetes.io/group.name: monitoring-group
 
-# 2. 禁用内置证书与网关，由 AWS ALB 接管
-certmanager:
-  install: false
+  # 3. 禁用内置的证书与网关组件
+  certmanager:
+    install: false
 
-nginx-ingress:
-  enabled: false
+  nginx-ingress:
+    enabled: false
 
-# 3. 部署 Runner（可选）
-gitlab-runner:
-  install: true
+  # 4. 可选配置：内置工具链
+  gitlab-runner:
+    install: true
