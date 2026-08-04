@@ -1,0 +1,29 @@
+gitlab:
+  global:
+    hosts:
+      domain: awsmpc.asia  # 你的域名
+    
+    # 持久化存储配置：指定 EKS 的 EBS gp3 存储类
+    persistence:
+      storageClass: gp3
+
+    # Ingress 入口配置：挂载到 AWS ALB Controller
+    ingress:
+      configureCertmanager: false
+      provider: aws
+      class: alb
+      annotations:
+        alb.ingress.kubernetes.io/scheme: internet-facing
+        alb.ingress.kubernetes.io/target-type: ip
+        # 复用我们之前的 monitoring-group，省钱！
+        alb.ingress.kubernetes.io/group.name: monitoring-group
+
+  # 禁用内置的 cert-manager 和 nginx-ingress，由 AWS 架构接管
+  certmanager:
+    install: false
+  nginx-ingress:
+    enabled: false
+
+  # 启用内置的 GitLab Runner 方便后续做 CI/CD
+  gitlab-runner:
+    install: true

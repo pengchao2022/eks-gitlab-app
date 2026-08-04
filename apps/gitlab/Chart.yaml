@@ -1,0 +1,7 @@
+apiVersion: v2
+name: gitlab-deploy
+version: 1.0.0
+dependencies:
+  - name: gitlab
+    version: 8.1.0  # 指定所需的 GitLab Chart 版本
+    repository: https://charts.gitlab.io/
