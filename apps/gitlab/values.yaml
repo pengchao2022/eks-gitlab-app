@@ -1,29 +1,38 @@
-gitlab:
-  global:
-    hosts:
-      domain: awsmpc.asia  # 你的域名
-    
-    # 持久化存储配置：指定 EKS 的 EBS gp3 存储类
-    persistence:
-      storageClass: gp3
+# ==========================================
+# GitLab Helm Chart Values for EKS & Argo CD
+# ==========================================
 
-    # Ingress 入口配置：挂载到 AWS ALB Controller
-    ingress:
-      configureCertmanager: false
-      provider: aws
-      class: alb
-      annotations:
-        alb.ingress.kubernetes.io/scheme: internet-facing
-        alb.ingress.kubernetes.io/target-type: ip
-        # 复用我们之前的 monitoring-group，省钱！
-        alb.ingress.kubernetes.io/group.name: monitoring-group
+# 1. 🔑 关键修复：禁用升级检查（解决全新的初始化安装报错问题）
+upgradeCheck:
+  enabled: false
 
-  # 禁用内置的 cert-manager 和 nginx-ingress，由 AWS 架构接管
-  certmanager:
-    install: false
-  nginx-ingress:
-    enabled: false
+# 2. 全局基础配置
+global:
+  hosts:
+    domain: awsmpc.asia  # 替换为你的域名（访问地址将为 gitlab.awsmpc.asia）
+  
+  # 存储类：指定 AWS EKS 的 EBS gp3 存储类
+  persistence:
+    storageClass: gp3
 
-  # 启用内置的 GitLab Runner 方便后续做 CI/CD
-  gitlab-runner:
-    install: true
+  # Ingress 配置：对接 AWS Load Balancer Controller
+  ingress:
+    configureCertmanager: false
+    provider: aws
+    class: alb
+    annotations:
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/target-type: ip
+      # 复用已有的 ALB 分组，节省资源与成本
+      alb.ingress.kubernetes.io/group.name: monitoring-group
+
+# 3. 禁用内置的证书与网关组件（由 AWS ALB 全权接管）
+certmanager:
+  install: false
+
+nginx-ingress:
+  enabled: false
+
+# 4. 可选配置：内置工具链
+gitlab-runner:
+  install: true  # 自动部署 GitLab Runner 用于后续 CI/CD Pipeline
