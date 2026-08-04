@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitlab-stack
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io/foreground
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/pengchao2022/eks-gitlab-app.git' 
+    targetRevision: HEAD
+    path: apps/gitlab
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: gitlab
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true    # 自动创建 gitlab 命名空间
+      - ServerSideApply=true    # 🔑 必须！防止 GitLab 庞大的 CRD 触发 Annotation 长度超限错误
