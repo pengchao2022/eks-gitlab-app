@@ -22,5 +22,5 @@ spec:
       prune: true
       selfHeal: true
     syncOptions:
-      - CreateNamespace=true    # 自动创建 gitlab 命名空间
-      - ServerSideApply=true    # 🔑 必须！防止 GitLab 庞大的 CRD 触发 Annotation 长度超限错误
+      - CreateNamespace=true    
+      - ServerSideApply=true    
